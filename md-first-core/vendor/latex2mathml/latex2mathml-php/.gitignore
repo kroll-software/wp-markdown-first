@@ -1,0 +1,18 @@
+### PHP
+vendor/
+composer.phar
+.phpunit.result.cache
+.phpunit.cache/
+.php-cs-fixer.cache
+.php-cs-fixer.dist.php
+auth.json
+
+### JetBrains (PhpStorm)
+.idea/
+*.iws
+out/
+cmake-build-*/
+
+### OS
+.DS_Store
+Thumbs.db

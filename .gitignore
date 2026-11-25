@@ -1,0 +1,27 @@
+# --- OS / editor ---------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+*~
+.#*
+*#
+.vs/
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# --- build / scratch ----------------------------------------------
+*.log
+*.bak
+*.tmp
+.phpunit.result.cache
+coverage/
+
+# --- WordPress (only if this repo is ever synced back into a WP tree)
+wp-config.php
+wp-content/uploads/
+wp-content/cache/
+
+# Note: md-first-core/vendor/ is intentionally COMMITTED so the release is
+# self-contained and installable without Composer. Do not gitignore it.

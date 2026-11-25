@@ -1,0 +1,255 @@
+/**
+ * MD-First Core — Editor- & Vorschau-Stil (Editor-Palette, Light + Dark)
+ * Eingebaute Farbwerte (helle Editor-Referenz): Text #1f2328, Sekundär #57606a,
+ * Link #0969da, Code-Rot #cf222e, Code-Hintergrund #f6f8fa, Border #d0d7de.
+ */
+
+/* ─────────────── CodeMirror-Basis ─────────────── */
+
+#post-body-content .CodeMirror {
+	font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", "Courier New", monospace;
+	font-size: 14px;
+	line-height: 1.6;
+	color: #1f2328;
+	background: #ffffff;
+	border: 1px solid #d0d7de;
+	border-radius: 6px;
+	padding: 14px 16px;
+	min-height: 480px;
+	height: auto;
+	box-sizing: border-box;
+}
+#post-body-content .CodeMirror-scroll {
+	min-height: 480px;
+}
+#post-body-content .CodeMirror-cursor {
+	border-left: 2px solid #0969da;
+}
+#post-body-content .CodeMirror-selected {
+	background: #d8dee4;
+}
+#post-body-content .CodeMirror-matchingbracket {
+	color: #0969da;
+	font-weight: 600;
+}
+
+/* ─────────────── Math-Tokens ─────────────── */
+
+.mdf-math, .cm-mdf-math { color: #8250df; font-weight: 700; font-style: italic; }
+.mdf-cmd, .cm-mdf-cmd { color: #6633cc; font-weight: 600; }
+
+/* ─────────────── Markdown-Tokens (Syntax-Highlighting) ───────────────
+ * Token-Quellen (übernommen, nicht neu erfunden):
+ *  1. Offizieller CM5-Markdown/GFM-Mode 5.65.16 (highlightFormatting) →
+ *     cm-formatting-* Marker-Spans, cm-header-N, cm-quote, cm-strong, …
+ *  2. Eigene Overlay-Tokens 'mdf-fencelang' + 'mdf-pipe' (text/x-mdmark),
+ *     da weder CM5 noch SimpleMDE/StackEdit diese abdecken.
+ * Farbwahl: User-Spezifikation 2026-11-24 (Sublime/VSCode-artig), helles
+ * Thema, hohe Kontraste — nur die MARKER werden eingefärbt,
+ * der Formatierungstext bleibt normal lesbar.
+ *
+ * WICHTIG: Reihenfolge = Spezifität. Marker-Regeln stehen NACH den
+ * Content-Regeln, weil Marker-Spans beide Klassen tragen (z. B.
+ * .cm-formatting-header + .cm-header) → letztere Regel gewinnt.
+ */
+
+/* A) Content-Token (Text innerhalb formatierter Elemente) */
+#post-body-content .cm-header { font-weight: 700; color: #1f2328; }
+#post-body-content .cm-strong { font-weight: 700; }
+#post-body-content .cm-em { font-style: italic; }
+#post-body-content .cm-link { color: #0969da; text-decoration: underline; }
+#post-body-content .cm-url { color: #57606a; text-decoration: underline; }
+#post-body-content .cm-string-2 { color: #cf222e; background: #f6f8fa; border-radius: 3px; }
+#post-body-content .cm-quote { color: #6e7781; }
+#post-body-content .cm-hr { color: #9ca3af; }
+/* Code-Blöcke (inline + block): leicht-grauer Hintergrund, dunkler Text */
+#post-body-content .cm-comment { color: #24292f; background: #f0f1f3; border-radius: 3px; }
+/* LISTE: cm-variable-2/3 + cm-keyword = Listen-Text-Layer 1–3 (cm-s-default
+ * würde sie blau färben) → auf normalen Text zurücksetzen.
+ * Der Marker bekommt seine Farbe in Sektion B (.cm-formatting-list). */
+#post-body-content .cm-variable-2,
+#post-body-content .cm-variable-3,
+#post-body-content .cm-keyword { color: #24292f; font-weight: 400; }
+
+/* B) Marker-Token — MÜSSEN nach A), sonst verlieren sie im CSS-Wettkampf */
+/* Überschriften-Marker  #   → dunkel-rotbraun */
+#post-body-content .cm-formatting-header { color: #9a3b1c; font-weight: 600; }
+/* Em-/Strong-/Strike-Marker  * ** ~~  → lila (heller nach User-Feedback 24.11.) */
+#post-body-content .cm-formatting-em,
+#post-body-content .cm-formatting-strong,
+#post-body-content .cm-formatting-strikethrough { color: #8b5cf6; font-weight: 600; }
+/* Zitat-Marker  >  → braun */
+#post-body-content .cm-formatting-quote { color: #8a5a1e; font-weight: 600; }
+/* Code-Marker  `  ```  → blaugrün; fences (```-Zeilen) + Sprachtag bekommen
+ * den Block-Hintergrund direkt, damit auch ```lean grau hinterlegt ist */
+#post-body-content .cm-formatting-code { color: #0f766e; font-weight: 600; }
+#post-body-content .cm-formatting-code-block { color: #0f766e; font-weight: 600; background: #f0f1f3; }
+/* Aufzählungs-Bullets/-Ziffern (- und 1.): NUR der Marker dunkelblau,
+ * der List-Text bleibt normal (User-Feedback 24.11.) */
+#post-body-content .cm-formatting-list { color: #0550ae; font-weight: 600; }
+/* Fence-Sprachtag nach ``` (z. B. "lean") — eigenes Overlay-Token */
+.mdf-fencelang, .cm-mdf-fencelang { color: #6d28d9; font-weight: 600; background: #f0f1f3; }
+/* Tabellen-Pipes |  — eigenes Overlay-Token, heller nach User-Feedback 24.11. */
+.mdf-pipe, .cm-mdf-pipe { color: #6b7280; }
+
+/* ─────────────── Tab-Leiste + Umschaltung ─────────────── */
+
+.mdf-bar {
+	display: inline-flex;
+	gap: 4px;
+	margin: 0 0 8px;
+	padding: 4px;
+	background: #f6f8fa;
+	border: 1px solid #d0d7de;
+	border-radius: 6px;
+}
+.mdf-bar .mdf-tab {
+	font-family: inherit;
+	font-size: 13px;
+	padding: 4px 14px;
+	border: 0;
+	background: transparent;
+	color: #57606a;
+	border-radius: 4px;
+	cursor: pointer;
+}
+.mdf-bar .mdf-tab:hover { background: #eaeef2; color: #1f2328; }
+.mdf-bar .mdf-tab[aria-pressed="true"] { background: #ffffff; color: #1f2328; font-weight: 600; box-shadow: 0 1px 2px rgba(31, 35, 40, 0.1); }
+
+#post-body-content[data-mdf-view="preview"] .CodeMirror { display: none; }
+.mdf-preview-pane {
+	display: none;
+	border: 1px solid #d0d7de;
+	border-radius: 6px;
+	background: #ffffff;
+	padding: 20px 28px;
+	max-height: 72vh;
+	overflow: auto;
+	font-size: 15px;
+	line-height: 1.65;
+	color: #1f2328;
+}
+#post-body-content[data-mdf-view="preview"] .mdf-preview-pane { display: block; }
+
+/* ─────────────── Vorschau-Inhalte (Prose-Lite) ─────────────────────── */
+
+.mdf-preview-pane > :first-child { margin-top: 0; }
+.mdf-preview-pane h1, .mdf-preview-pane h2, .mdf-preview-pane h3,
+.mdf-preview-pane h4, .mdf-preview-pane h5, .mdf-preview-pane h6 {
+	margin: 1.4em 0 0.6em;
+	font-weight: 700;
+	line-height: 1.3;
+}
+.mdf-preview-pane h1 { font-size: 1.75em; padding-bottom: 0.3em; border-bottom: 1px solid #d0d7de; }
+.mdf-preview-pane h2 { font-size: 1.4em; padding-bottom: 0.3em; border-bottom: 1px solid #d0d7de; }
+.mdf-preview-pane h3 { font-size: 1.2em; }
+.mdf-preview-pane p { margin: 0.8em 0; }
+.mdf-preview-pane a { color: #0969da; text-decoration: underline; }
+.mdf-preview-pane strong { font-weight: 700; }
+.mdf-preview-pane code {
+	font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+	font-size: 0.88em;
+	color: #cf222e;
+	background: #f6f8fa;
+	border-radius: 4px;
+	padding: 0.15em 0.35em;
+}
+.mdf-preview-pane pre {
+	background: #f6f8fa;
+	border-radius: 6px;
+	padding: 14px 16px;
+	overflow: auto;
+	font-size: 0.88em;
+	line-height: 1.5;
+}
+.mdf-preview-pane pre code { background: transparent; color: #1f2328; padding: 0; }
+.mdf-preview-pane blockquote {
+	margin: 0.8em 0;
+	padding: 0 1em;
+	color: #57606a;
+	border-left: 0.25em solid #d0d7de;
+}
+.mdf-preview-pane ul, .mdf-preview-pane ol { margin: 0.8em 0; padding-left: 1.8em; }
+.mdf-preview-pane li + li { margin-top: 0.25em; }
+.mdf-preview-pane hr { border: 0; border-top: 1px solid #d0d7de; margin: 1.4em 0; }
+.mdf-preview-pane table { border-collapse: collapse; margin: 0.8em 0; display: block; overflow: auto; max-width: 100%; }
+.mdf-preview-pane th, .mdf-preview-pane td { border: 1px solid #d0d7de; padding: 6px 12px; }
+.mdf-preview-pane th { background: #f6f8fa; font-weight: 600; }
+.mdf-preview-pane img { max-width: 100%; }
+.mdf-preview-pane .mdf-preview-note { color: #57606a; font-style: italic; }
+
+/* MathML: inline + block + Fallback */
+.mdf-preview-pane math { font-size: 1.07em; }
+.mdf-preview-pane math[display="block"],
+.mdf-preview-pane math[displaystyle] {
+	display: block;
+	text-align: center;
+	margin: 0.9em auto;
+}
+.mdf-preview-pane .mdf-math-fallback {
+	background: #f6f8fa;
+	border-radius: 6px;
+	padding: 12px 14px;
+	white-space: pre-wrap;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.9em;
+}
+
+/* ─────────────── Dark Mode ─────────────── */
+
+@media (prefers-color-scheme: dark) {
+	#post-body-content .CodeMirror {
+		color: #e6edf3;
+		background: #22272e;
+		border-color: #3b4149;
+	}
+	#post-body-content .CodeMirror-selected { background: #2d333b; }
+	#post-body-content .CodeMirror-cursor { border-left-color: #58a6ff; }
+
+	.mdf-math { color: #d2a8ff; }
+	.mdf-cmd { color: #d2a8ff; }
+
+	#post-body-content .cm-header { color: #e6edf3; }
+	#post-body-content .cm-link { color: #58a6ff; }
+	#post-body-content .cm-url { color: #7d8590; }
+	#post-body-content .cm-string-2 { color: #ffa198; background: rgba(110, 118, 129, 0.18); }
+	#post-body-content .cm-quote { color: #7d8590; }
+	/* LISTE: variable-2/3 + keyword = Listen-Text → normal (cm-s-default würde
+	 * variable-2 blau färben); Marker via .cm-formatting-list (unten). */
+	#post-body-content .cm-variable-2, #post-body-content .cm-variable-3,
+	#post-body-content .cm-keyword { color: #e6edf3; font-weight: 400; }
+	#post-body-content .cm-hr { color: #6e7681; }
+
+	/* Markdown-Marker (dark) */
+	#post-body-content .cm-formatting-header { color: #f97316; }
+	#post-body-content .cm-formatting-em,
+	#post-body-content .cm-formatting-strong,
+	#post-body-content .cm-formatting-strikethrough { color: #c084fc; }
+	#post-body-content .cm-formatting-quote { color: #d29922; }
+	/* Code-Marker + fence-Zeilen (```lean) bekommen Block-Hintergrund */
+	#post-body-content .cm-formatting-code { color: #2dd4bf; }
+	#post-body-content .cm-formatting-code-block { color: #2dd4bf; background: #30363d; }
+	/* Aufzählungs-Bullets/-Ziffern: NUR Marker, nicht der List-Text */
+	#post-body-content .cm-formatting-list { color: #58a6ff; font-weight: 600; }
+	.mdf-fencelang, .cm-mdf-fencelang { color: #c084fc; background: #30363d; }
+	.mdf-pipe, .cm-mdf-pipe { color: #8b949e; }
+	#post-body-content .cm-comment { color: #e6edf3; background: #30363d; }
+
+	.mdf-bar { background: #21262d; border-color: #3b4149; }
+	.mdf-bar .mdf-tab { color: #7d8590; }
+	.mdf-bar .mdf-tab:hover { background: #2d333b; color: #e6edf3; }
+	.mdf-bar .mdf-tab[aria-pressed="true"] { background: #323844; color: #e6edf3; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4); }
+
+	.mdf-preview-pane { color: #e6edf3; background: #22272e; border-color: #3b4149; }
+	.mdf-preview-pane h1, .mdf-preview-pane h2 { border-bottom-color: #3b4149; }
+	.mdf-preview-pane a { color: #58a6ff; }
+	.mdf-preview-pane code { color: #ffa198; background: rgba(110, 118, 129, 0.18); }
+	.mdf-preview-pane pre { background: #161b22; }
+	.mdf-preview-pane pre code { color: #e6edf3; }
+	.mdf-preview-pane blockquote { color: #7d8590; border-left-color: #3b4149; }
+	.mdf-preview-pane hr { border-top-color: #3b4149; }
+	.mdf-preview-pane th, .mdf-preview-pane td { border-color: #3b4149; }
+	.mdf-preview-pane th { background: #21262d; }
+	.mdf-preview-pane .mdf-math-fallback { background: #161b22; }
+	.mdf-preview-pane .mdf-preview-note { color: #7d8590; }
+}

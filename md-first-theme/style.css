@@ -1,0 +1,322 @@
+/*
+Theme Name:     MD First
+Description:    Semantic, accessible, JavaScript-free WordPress theme for Markdown-first sites. Works with the md-first-core plugin (rendered Markdown, MathML); degrades gracefully to plain content without it. Light/dark via system preference.
+Version:        1.0.0
+Requires at least: 6.9
+Requires PHP:   8.0
+Author:         Kroll-Software
+Author URI:
+License:        MIT License
+License URI:    https://opensource.org/licenses/MIT
+Text Domain:    md-first-theme
+Tags:           one-column, accessibility-ready, blog, news
+*/
+
+/* ════════════════════════════════════════════════════════════════════
+   Design system — light is the default, built on a fixed,
+   carefully tuned set of design tokens; dark mode follows the
+   OS/browser preference. No JS, no class toggles.
+   ════════════════════════════════════════════════════════════════════ */
+
+:root {
+	--bg: #ffffff;
+	--text: #242424;
+	--muted: #5f6368;
+	--line: #C3C6C4;
+	--surface: #F8FAFD;
+	--link: #1a73e8;
+	--accent: #1a73e8;
+	--link-hover: #1358CF;
+	--maxw: 46rem;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--bg: #0d1117;
+		--text: #e6edf3;
+		--muted: #8b949e;
+		--line: #3d444d;
+		--surface: #1c2128;
+		--link: #58a6ff;
+		--accent: #58a6ff;
+		--link-hover: #79b8ff;
+	}
+}
+
+/* ── Base ──────────────────────────────────────────────────────────── */
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html {
+	-webkit-text-size-adjust: 100%;
+}
+
+body {
+	margin: 0;
+	background: var(--bg);
+	color: var(--text);
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+		"Helvetica Neue", Arial, sans-serif;
+	font-size: 16px;
+	line-height: 1.6;
+}
+
+img {
+	max-width: 100%;
+	height: auto;
+}
+
+a {
+	color: var(--link);
+}
+
+a:hover,
+a:focus {
+	color: var(--link-hover);
+}
+
+::selection {
+	background: var(--accent);
+	color: var(--bg);
+}
+
+/* ── Accessibility helpers ─────────────────────────────────────────── */
+
+.skip-link {
+	position: absolute;
+	left: -9999px;
+	top: 0;
+	z-index: 100;
+	background: var(--bg);
+	color: var(--link);
+	padding: 8px 16px;
+	border: 0;
+	text-decoration: none;
+	font-size: 14px;
+}
+
+.skip-link:focus {
+	left: 8px;
+	top: 8px;
+	outline: 2px solid var(--accent);
+}
+
+.screen-reader-text {
+	position: absolute !important;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	word-wrap: normal;
+}
+
+/* ── Frame: header / main / footer ─────────────────────────────────── */
+
+.site-header {
+	border-bottom: 1px solid var(--line);
+	background: var(--bg);
+}
+
+.site-header .inner {
+	max-width: var(--maxw);
+	margin: 0 auto;
+	padding: 14px 20px;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 4px 24px;
+}
+
+.site-brand {
+	display: flex;
+	flex-direction: column;
+}
+
+.site-title {
+	margin: 0;
+	font-size: 20px;
+	font-weight: 700;
+	line-height: 1.3;
+}
+
+.site-title a {
+	color: var(--text);
+	text-decoration: none;
+}
+
+.site-title a:hover {
+	color: var(--link);
+}
+
+.site-description {
+	margin: 0;
+	font-size: 13px;
+	color: var(--muted);
+}
+
+.site-nav {
+	margin-left: auto;
+}
+
+.site-nav ul {
+	list-style: none;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 18px;
+	margin: 0;
+	padding: 0;
+}
+
+.site-nav a {
+	font-size: 14px;
+	font-weight: 500;
+	color: var(--text);
+	text-decoration: none;
+}
+
+.site-nav a:hover,
+.site-nav li.current-menu-item a {
+	color: var(--link);
+	text-decoration: underline;
+}
+
+.site-main {
+	max-width: var(--maxw);
+	margin: 0 auto;
+	padding: 28px 20px 56px;
+	min-height: 50vh;
+}
+
+.site-footer {
+	border-top: 1px solid var(--line);
+}
+
+.site-footer .inner {
+	max-width: var(--maxw);
+	margin: 0 auto;
+	padding: 14px 20px;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 16px;
+	font-size: 13px;
+	color: var(--muted);
+}
+
+.site-footer a {
+	color: var(--muted);
+	text-decoration: underline;
+}
+
+.site-footer a:hover {
+	color: var(--link);
+}
+
+/* ── Page header (lists, archives) ─────────────────────────────────── */
+
+.page-title {
+	font-size: 24px;
+	font-weight: 700;
+	margin: 0 0 16px;
+	padding-bottom: 16px;
+	border-bottom: 1px solid var(--line);
+}
+
+/* ── Post lists (front page, archives) ─────────────────────────────── */
+
+.post-card {
+	padding: 20px 0;
+	border-bottom: 1px solid var(--line);
+}
+
+.post-list .post-card:first-child {
+	padding-top: 4px;
+}
+
+.post-list .post-card:last-child {
+	border-bottom: 0;
+}
+
+.post-card h2 {
+	font-size: 20px;
+	font-weight: 700;
+	line-height: 1.3;
+	margin: 0 0 4px;
+}
+
+.post-card h2 a {
+	color: var(--text);
+	text-decoration: none;
+}
+
+.post-card h2 a:hover {
+	color: var(--link);
+	text-decoration: underline;
+}
+
+.post-meta {
+	font-size: 13px;
+	color: var(--muted);
+	margin: 0 0 8px;
+}
+
+.post-excerpt {
+	margin: 8px 0 0;
+}
+
+/* ── Singular (single.php / page.php) ──────────────────────────────── */
+
+.entry-title {
+	font-size: 30px;
+	font-weight: 700;
+	line-height: 1.3;
+	margin: 0 0 8px;
+}
+
+.entry-meta {
+	font-size: 14px;
+	color: var(--muted);
+	margin: 0 0 16px;
+	padding-bottom: 16px;
+	border-bottom: 1px solid var(--line);
+}
+
+.entry-content {
+	margin-top: 8px;
+}
+
+/* ── Pagination ────────────────────────────────────────────────────── */
+
+.pagination {
+	margin-top: 24px;
+	font-size: 14px;
+}
+
+.pagination .nav-links {
+	display: flex;
+	gap: 8px 20px;
+}
+
+.pagination .page-numbers {
+	color: var(--text);
+	text-decoration: none;
+}
+
+.pagination .page-numbers.current {
+	color: var(--link);
+	font-weight: 700;
+}
+
+.pagination .page-numbers.dots {
+	color: var(--muted);
+}
+
+/* ── Empty / 404 ───────────────────────────────────────────────────── */
+
+.not-found p,
+.no-posts p {
+	margin: 8px 0 16px;
+}

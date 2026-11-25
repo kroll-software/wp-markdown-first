@@ -1,0 +1,146 @@
+# ja translations for the Markdown First plugin.
+# Default (source) language: English.
+# Copyright (C) 2026 Kroll-Software
+# License: MIT
+msgid ""
+msgstr ""
+"Project-Id-Version: md-first-core 1.3.30\n"
+"Report-Msgid-Bugs-To:\n"
+"POT-Creation-Date: 2026-11-25 02:15+0100\n"
+"PO-Revision-Date: 2026-11-25 02:15+0100\n"
+"Last-Translator: Kroll-Software <kroll-software@local>\n"
+"Language-Team: Japanese\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+
+#: includes/class-mdf-admin.php
+msgid "Markup"
+msgstr "マークアップ"
+
+#: includes/class-mdf-admin.php
+msgid "Preview"
+msgstr "プレビュー"
+
+#: includes/class-mdf-admin.php
+msgid "Loading preview …"
+msgstr "プレビューを読み込み中…"
+
+#: includes/class-mdf-admin.php
+msgid "The preview could not be loaded."
+msgstr "プレビューを読み込めませんでした。"
+
+#: includes/class-mdf-admin.php
+msgid "No content yet — write in the Markup tab, then open the preview."
+msgstr "まだコンテンツがありません — マークアップタブに書いてからプレビューを開いてください。"
+
+#: includes/class-mdf-admin.php
+msgid "Undo (Ctrl+Z)"
+msgstr "元に戻す (Ctrl+Z)"
+
+#: includes/class-mdf-admin.php
+msgid "Redo (Ctrl+Shift+Z)"
+msgstr "やり直す (Ctrl+Shift+Z)"
+
+#: includes/class-mdf-admin.php
+msgid "Bold (**text**)"
+msgstr "太字 (**text**)"
+
+#: includes/class-mdf-admin.php
+msgid "Italic (*text*)"
+msgstr "斜体 (*text*)"
+
+#: includes/class-mdf-admin.php
+msgid "Strikethrough (~~text~~)"
+msgstr "取り消し線 (~~text~~)"
+
+#: includes/class-mdf-admin.php
+msgid "Link — \"Insert/edit link\" dialog (standard-WP) → [text](URL)"
+msgstr "リンク — 「リンクの挿入/編集」ダイアログ（WP 標準）→ [text](URL)"
+
+#: includes/class-mdf-admin.php
+msgid "Image — original prompt (src, alt) → ![alt](src)"
+msgstr "画像 — 元のプロンプト (src, alt) → ![alt](src)"
+
+#: includes/class-mdf-admin.php
+msgid "Bulleted list (- item)"
+msgstr "箇条書き (- item)"
+
+#: includes/class-mdf-admin.php
+msgid "Numbered list (1. item)"
+msgstr "番号リスト (1. item)"
+
+#: includes/class-mdf-admin.php
+msgid "Blockquote (> text)"
+msgstr "ブロック引用 (> text)"
+
+#: includes/class-mdf-admin.php
+msgid "Code (`inline` / ```block```)"
+msgstr "コード (`inline` / ```block```)"
+
+#: includes/class-mdf-admin.php
+msgid "Footnote — selected text becomes [^N]; definition added at the end of the post"
+msgstr "脚注 — 選択テキストが [^N] になります；定義は投稿の末尾に追加されます"
+
+#: includes/class-mdf-admin.php
+msgid "Session invalid, please reload the page."
+msgstr "セッションが無効です。ページを再読み込みしてください。"
+
+#: includes/class-mdf-admin.php
+msgid "Permission denied."
+msgstr "権限がありません。"
+
+#: includes/class-mdf-admin.php
+msgid "Content too large for the preview."
+msgstr "コンテンツが大きすぎてプレビューできません。"
+
+#: includes/class-mdf-admin.php
+msgid "Renderer not available."
+msgstr "レンダラーが利用できません。"
+
+#: includes/class-mdf-admin.php
+msgid "Preview rendering failed."
+msgstr "プレビューのレンダリングに失敗しました。"
+
+#: includes/class-mdf-settings.php
+msgid "Markdown First"
+msgstr "Markdown First"
+
+#: includes/class-mdf-settings.php
+msgid "Settings apply to the mdf/* abilities and the Markdown endpoints (.md routes, /llms.txt). Saved per site; defaults listed as placeholder values."
+msgstr "この設定は mdf/* アビリティと Markdown エンドポイント（.md ルート、/llms.txt）に適用されます。サイトごとに保存；既定値はプレースホルダーとして記載されています。"
+
+#: includes/class-mdf-settings.php
+msgid "Markdown endpoints"
+msgstr "Markdown エンドポイント"
+
+#: includes/class-mdf-settings.php
+msgid "Serve /<slug>.md and respect \"Accept: text/markdown\"."
+msgstr "／<slug>.md を提供し、\"Accept: text/markdown\" を尊重します。"
+
+#: includes/class-mdf-settings.php
+msgid "llms.txt"
+msgstr "llms.txt"
+
+#: includes/class-mdf-settings.php
+msgid "Serve /llms.txt and /llms-full.txt."
+msgstr "／llms.txt と ／llms-full.txt を提供します。"
+
+#: includes/class-mdf-settings.php
+msgid "List size limit"
+msgstr "リストサイズ上限"
+
+#: includes/class-mdf-settings.php
+msgid "Maximum per_page accepted by mdf/list-posts-markdown (1–500)."
+msgstr "mdf/list-posts-markdown が受け付ける最大の per_page（1–500）。"
+
+#: includes/class-mdf-settings.php
+msgid "Excerpt length"
+msgstr "抜粋の長さ"
+
+#: includes/class-mdf-settings.php
+msgid "Auto-excerpt length in words for list and the_excerpt (5–200)."
+msgstr "リストおよび the_excerpt 用の自動抜粋の単語数（5–200）。"
