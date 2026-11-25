@@ -85,46 +85,58 @@ final class Mdf_Renderer {
 	 * von KSES am href gekürzt — solche Keys sollten vermieden werden.
 	 */
 	public static function repair_footnote_anchors( string $html ): string {
-		// Referenzen → #fn:KEY (Ziel: <li id="fn:KEY">).
+		// Referenzen -> #fn:KEY (Ziel: <li id="fn:KEY">).
 		$html = preg_replace_callback(
-			'/<a href="([^"]*)" class="footnote-ref">/',
-			static function ( $m ) {
-				return str_starts_with( $m[1], "#fn:" )
+			'~<a href="([^"]*)" class="footnote-ref">~',
+			static function ( array $m ): string {
+				return str_starts_with( $m[1], '#fn:' )
 					? $m[0]
 					: '<a href="#fn:' . $m[1] . '" class="footnote-ref">';
 			},
 			$html
 		);
-		// Backrefs → #fnrefN:KEY: Pairing pro <li id="fn:KEY">-Block; der n-te
-		// Backref-Anker (Dokumentenreihe) erhält die n-te Sup-ID
-		// (id="fnrefN:KEY") — so bekommt auch ein KEY mit mehreren Referenzen
-		// pro Reference eine eindeutige Ziel-ID. Keine Sups → unangetastet.
-		$html = preg_replace_callback(
-			'/<li id="fn:([^"]+)"[^>]*>.*?<\/li>/s',
-			function ( $m ) use ( &$html ) {
-				$key = $m[1];
-				preg_match_all( '/<sup id="(fnref\d+:' . preg_quote( $key, '/' ) . ')"/', $html, $supm );
-				$targets = isset( $supm[1] ) ? $supm[1] : array();
-				if ( empty( $targets ) ) {
-					return $m[0];
-				}
-				$i = 0;
-				return preg_replace_callback(
-					'/<a href="[^"]*" rev="footnote"/',
-					static function ( $am ) use ( &$i, $targets ) {
-						if ( $i >= count( $targets ) ) {
-							return $am[0];
-						}
-						$t      = '#' . $targets[ $i ];
-						$i     ++;
-						return '<a href="' . $t . '" rev="footnote"';
-					},
-					$m[0]
-				);
+
+		// Backrefs -> #fnrefN:KEY: Pairing pro <li id="fn:KEY">-Block.
+		return preg_replace_callback(
+			'~<li id="fn:([^"]+)"[^>]*>.*?</li>~s',
+			static function ( array $m ) use ( $html ): string {
+				return self::repair_footnote_backrefs_in_block( $m[0], $m[1], $html );
 			},
 			$html
 		);
-		return $html;
+	}
+
+	private static function repair_footnote_backrefs_in_block( string $block, string $key, string $full_html ): string {
+		preg_match_all( '~<sup id="(fnref\d+:' . preg_quote( $key, '~' ) . ')"~', $full_html, $supm );
+		$targets = $supm[1] ?? array();
+		if ( empty( $targets ) ) {
+			return $block;
+		}
+
+		preg_match_all( '~<a href="[^"]*" rev="footnote"~', $block, $matches, PREG_OFFSET_CAPTURE );
+		if ( empty( $matches[0] ) ) {
+			return $block;
+		}
+
+		$result = '';
+		$cursor = 0;
+		$target_count = count( $targets );
+
+		foreach ( $matches[0] as $idx => $match ) {
+			[ $matched_text, $offset ] = $match;
+			$result .= substr( $block, $cursor, $offset - $cursor );
+
+			if ( $idx < $target_count ) {
+				$result .= '<a href="#' . $targets[ $idx ] . '" rev="footnote"';
+			} else {
+				$result .= $matched_text;
+			}
+
+			$cursor = $offset + strlen( $matched_text );
+		}
+
+		$result .= substr( $block, $cursor );
+		return $result;
 	}
 
 	/**
@@ -133,48 +145,76 @@ final class Mdf_Renderer {
 	 * @return array{0: string, 1: array<int, array{tex: string, display: string}>} [Text, Liste].
 	 */
 	public static function protect_math( string $md ): array {
-		$maths = array();
-		// Block: $$…$$ (mehrzeilig) → display=block.
-		$md = preg_replace_callback(
-			'/^\s*\$\$(.+?)\$\$/ms',
-			static function ( $m ) use ( &$maths ) {
-				$maths[] = array( 'tex' => trim( $m[1] ), 'display' => 'block' );
-				return "\n%%MDMATH" . ( count( $maths ) - 1 ) . "%%\n";
+		$state = new class( $md ) {
+			public string $md;
+			/** @var array<int, array{tex: string, display: string}> */
+			public array $maths = array();
+
+			public function __construct( string $md ) {
+				$this->md = $md;
+			}
+
+			public function store_block( string $tex, bool $wrap_newlines ): string {
+				$idx = count( $this->maths );
+				$this->maths[] = array(
+					'tex'     => trim( $tex ),
+					'display' => 'block',
+				);
+				$placeholder = '%%MDMATH' . $idx . '%%';
+				return $wrap_newlines ? "\n" . $placeholder . "\n" : $placeholder;
+			}
+
+			public function store_inline( string $tex ): string {
+				$idx = count( $this->maths );
+				$this->maths[] = array(
+					'tex'     => $tex,
+					'display' => 'inline',
+				);
+				return '%%MDMATH' . $idx . '%%';
+			}
+		};
+
+		// Block: $$...$$ (mehrzeilig) -> display=block.
+		$state->md = preg_replace_callback(
+			'~^\s*\$\$(.+?)\$\$~ms',
+			static function ( array $m ) use ( $state ): string {
+				return $state->store_block( $m[1], true );
 			},
-			$md
+			$state->md
 		);
-		// Block: \[ … \] (mehrzeilig; LaTeX-Delimiter wie sie LLMs typischerweise ausgeben)
-		// → display=block. Inhalt wird unverändert in die MathML-Konversion übergeben.
-		$md = preg_replace_callback(
-			'/\\\\\[[\s\S]+?\\\]/',
-			static function ( $m ) use ( &$maths ) {
-				$maths[] = array( 'tex' => trim( substr( $m[0], 2, -2 ) ), 'display' => 'block' );
-				return "\n%%MDMATH" . ( count( $maths ) - 1 ) . "%%\n";
+
+		// Block: \[ ... \] (mehrzeilig; LaTeX-Delimiter wie sie LLMs typischerweise ausgeben)
+		// -> display=block. Inhalt wird unveraendert in die MathML-Konversion uebergeben.
+		$state->md = preg_replace_callback(
+			'~\\\\\[[\s\S]+?\\\\\]~',
+			static function ( array $m ) use ( $state ): string {
+				return $state->store_block( substr( $m[0], 2, -2 ), true );
 			},
-			$md
+			$state->md
 		);
-		// Inline: \( … \) (keine Zeilenumbrüche; der Inhalt darf Klammern enthalten —
+
+		// Inline: \( ... \) (keine Zeilenumbrueche; der Inhalt darf Klammern enthalten -
 		// abgebrochen wird erst am ersten \)-Delimiter). Vor der $-Heuristik, damit deren
-		// Scan keine geschützten Formeln mehr sieht.
-		$md = preg_replace_callback(
-			'/\\\\\(([^\n]+?)\\\\\)/',
-			static function ( $m ) use ( &$maths ) {
-				$maths[] = array( 'tex' => $m[1], 'display' => 'inline' );
-				return '%%MDMATH' . ( count( $maths ) - 1 ) . '%%';
+		// Scan keine geschuetzten Formeln mehr sieht.
+		$state->md = preg_replace_callback(
+			'~\\\\\(([^\n]+?)\\\\\)~',
+			static function ( array $m ) use ( $state ): string {
+				return $state->store_inline( $m[1] );
 			},
-			$md
+			$state->md
 		);
-		// Inline: $…$ ohne Zeilenumbruch; TeX-Heuristik ({}^_\ oder Rückwärtsschrägstrich)
+
+		// Inline: $...$ ohne Zeilenumbruch; TeX-Heuristik ({}^_\ oder Rueckwaertsschraegstrich)
 		// reduziert False-Positives in Shell-/Code-Kontexten.
-		$md = preg_replace_callback(
-			'/\$((?:\\\\[a-zA-Z]+|[^\$\\\\])*?[{}^_\\\\][^$\n]*?)\$/',
-			static function ( $m ) use ( &$maths ) {
-				$maths[] = array( 'tex' => $m[1], 'display' => 'inline' );
-				return '%%MDMATH' . ( count( $maths ) - 1 ) . '%%';
+		$state->md = preg_replace_callback(
+			'~\$((?:\\\\[a-zA-Z]+|[^\$\\\\])*?[{}^_\\\\][^$\n]*?)\$~',
+			static function ( array $m ) use ( $state ): string {
+				return $state->store_inline( $m[1] );
 			},
-			$md
+			$state->md
 		);
-		return array( $md, $maths );
+
+		return array( $state->md, $state->maths );
 	}
 
 	public static function restore_math( string $html, array $maths ): string {
@@ -200,17 +240,26 @@ final class Mdf_Renderer {
 	 * @return array{0: string, 1: array<string, string>} [Text, Map Placeholder=>Inhalt].
 	 */
 	public static function protect_code_spans( string $md ): array {
-		$spans = array();
-		$md    = preg_replace_callback(
-			'/(`{1,2})([^\n\`]*[*_][^\n\`]*)\1/',
-			static function ( $m ) use ( &$spans ) {
-				$key = 'MDFCODESPAN' . ( count( $spans ) ) . 'X';
-				$spans[ $key ] = $m[2];
+		$state = new class() {
+			/** @var array<string, string> */
+			public array $spans = array();
+
+			public function store( string $code ): string {
+				$key                 = 'MDFCODESPAN' . count( $this->spans ) . 'X';
+				$this->spans[ $key ] = $code;
 				return $key;
+			}
+		};
+
+		$md = preg_replace_callback(
+			'~(`{1,2})([^\n`]*[*_][^\n`]*)\1~',
+			static function ( array $m ) use ( $state ): string {
+				return $state->store( $m[2] );
 			},
 			$md
 		);
-		return array( $md, $spans );
+
+		return array( $md, $state->spans );
 	}
 
 	/**
